@@ -91,7 +91,7 @@ export default function Projects() {
 
                 <div className="p-6">
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {(Array.isArray(project.technologies) ? project.technologies : []).map(tech => (
+                    {(Array.isArray(project.technologies) ? project.technologies : []).map((tech: string) => (
                       <span key={tech} className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider bg-white/5 text-gray-400 rounded-md border border-white/5">
                         {tech}
                       </span>

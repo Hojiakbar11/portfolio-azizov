@@ -34,7 +34,7 @@ export default function ProjectForm({ onClose, onSuccess, project }: ProjectForm
       github_url: githubUrl,
       live_url: liveUrl,
       is_private: isPrivate,
-      technologies: technologies.split(',').map(t => t.trim()).filter(t => t !== ''),
+      technologies: technologies.split(',').map((t: string) => t.trim()).filter((t: string) => t !== ''),
     }
 
     let error

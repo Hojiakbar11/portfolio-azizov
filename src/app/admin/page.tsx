@@ -155,47 +155,55 @@ export default function AdminDashboard() {
     }
   }
 
-  const getEntityFields = () => {
-    switch (activeSection) {
-      case 'experience':
-        return [
-          { key: 'title', label: 'Job Title', type: 'text', required: true, placeholder: 'e.g., Senior Full Stack Developer' },
-          { key: 'company', label: 'Company Name', type: 'text', required: true, placeholder: 'e.g., Google' },
-          { key: 'date_range', label: 'Date Range', type: 'text', placeholder: 'e.g., 2021 - Present' },
-          { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Briefly describe your responsibilities or achievements...' },
-          { key: 'order_index', label: 'Order Index', type: 'number', placeholder: 'Number for sorting (e.g., 1, 2, 3)' }
-        ]
-      case 'education':
-        return [
-          { key: 'degree', label: 'Degree / Certificate', type: 'text', required: true, placeholder: 'e.g., B.Sc in Computer Science' },
-          { key: 'school', label: 'Institution Name', type: 'text', required: true, placeholder: 'e.g., IDU University' },
-          { key: 'date_range', label: 'Date Range', type: 'text', placeholder: 'e.g., 2018 - 2022' },
-          { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Major, GPA, or notable coursework...' },
-          { key: 'order_index', label: 'Order Index', type: 'number', placeholder: 'Number for sorting (e.g., 1, 2, 3)' }
-        ]
-      case 'skills':
-        return [
-          { key: 'name', label: 'Skill Name', type: 'text', required: true, placeholder: 'e.g., React' },
-          { key: 'category', label: 'Category (e.g., Frontend)', type: 'text', placeholder: 'e.g., Frontend' },
-          { key: 'icon_name', label: 'Lucide Icon Name', type: 'text', placeholder: 'e.g., code' }
-        ]
-      case 'taplinks':
-        return [
-          { key: 'title', label: 'Link Title', type: 'text', required: true, placeholder: 'e.g., GitHub' },
-          { key: 'url', label: 'URL', type: 'url', required: true, placeholder: 'https://github.com/...' },
-          { key: 'icon_name', label: 'Lucide Icon Name', type: 'text', placeholder: 'e.g., github' },
-          { key: 'order_index', label: 'Order Index', type: 'number', placeholder: '1' }
-        ]
-      case 'terminal_commands':
-        return [
-          { key: 'command_name', label: 'Command (e.g., about)', type: 'text', required: true, placeholder: 'e.g., about' },
-          { key: 'response_text', label: 'Response Text', type: 'textarea', required: true, placeholder: 'The text that terminal will output...' },
-          { key: 'category', label: 'Category', type: 'text', placeholder: 'e.g., General' }
-        ]
-      default:
-        return []
-    }
+interface Field {
+  key: string
+  label: string
+  type: 'text' | 'textarea' | 'number' | 'url'
+  required?: boolean
+  placeholder?: string
+}
+
+const getEntityFields = (): Field[] => {
+  switch (activeSection) {
+    case 'experience':
+      return [
+        { key: 'title', label: 'Job Title', type: 'text', required: true, placeholder: 'e.g., Senior Full Stack Developer' },
+        { key: 'company', label: 'Company Name', type: 'text', required: true, placeholder: 'e.g., Google' },
+        { key: 'date_range', label: 'Date Range', type: 'text', placeholder: 'e.g., 2021 - Present' },
+        { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Briefly describe your responsibilities or achievements...' },
+        { key: 'order_index', label: 'Order Index', type: 'number', placeholder: 'Number for sorting (e.g., 1, 2, 3)' }
+      ]
+    case 'education':
+      return [
+        { key: 'degree', label: 'Degree / Certificate', type: 'text', required: true, placeholder: 'e.g., B.Sc in Computer Science' },
+        { key: 'school', label: 'Institution Name', type: 'text', required: true, placeholder: 'e.g., IDU University' },
+        { key: 'date_range', label: 'Date Range', type: 'text', placeholder: 'e.g., 2018 - 2022' },
+        { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Major, GPA, or notable coursework...' },
+        { key: 'order_index', label: 'Order Index', type: 'number', placeholder: 'Number for sorting (e.g., 1, 2, 3)' }
+      ]
+    case 'skills':
+      return [
+        { key: 'name', label: 'Skill Name', type: 'text', required: true, placeholder: 'e.g., React' },
+        { key: 'category', label: 'Category (e.g., Frontend)', type: 'text', placeholder: 'e.g., Frontend' },
+        { key: 'icon_name', label: 'Lucide Icon Name', type: 'text', placeholder: 'e.g., code' }
+      ]
+    case 'taplinks':
+      return [
+        { key: 'title', label: 'Link Title', type: 'text', required: true, placeholder: 'e.g., GitHub' },
+        { key: 'url', label: 'URL', type: 'url', required: true, placeholder: 'https://github.com/...' },
+        { key: 'icon_name', label: 'Lucide Icon Name', type: 'text', placeholder: 'e.g., github' },
+        { key: 'order_index', label: 'Order Index', type: 'number', placeholder: '1' }
+      ]
+    case 'terminal_commands':
+      return [
+        { key: 'command_name', label: 'Command (e.g., about)', type: 'text', required: true, placeholder: 'e.g., about' },
+        { key: 'response_text', label: 'Response Text', type: 'textarea', required: true, placeholder: 'The text that terminal will output...' },
+        { key: 'category', label: 'Category', type: 'text', placeholder: 'e.g., General' }
+      ]
+    default:
+      return []
   }
+}
 
   if (loading && !user) {
     return (

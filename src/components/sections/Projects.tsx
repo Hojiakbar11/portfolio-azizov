@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { ExternalLink, Lock } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import GithubIcon from '@/components/icons/GithubIcon'
+import ProjectCard from '@/components/ProjectCard'
 
 interface Project {
   id: string
@@ -68,70 +69,7 @@ export default function Projects() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative bg-[#111] rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-300"
-              >
-                <div className="aspect-video relative overflow-hidden">
-                  <img 
-                    src={project.image_url || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop'} 
-                    alt={project.title}
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {project.is_private && (
-                    <div className="absolute top-4 right-4 p-2 rounded-full bg-black/60 backdrop-blur-md text-yellow-500">
-                      <Lock size={16} />
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-6">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {(Array.isArray(project.technologies) ? project.technologies : []).map((tech: string) => (
-                      <span key={tech} className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider bg-white/5 text-gray-400 rounded-md border border-white/5">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
-                    {project.title}
-                  </h3>
-                  
-                  <p className="text-gray-400 text-sm mb-6 line-clamp-2">
-                    {project.description}
-                  </p>
-
-                  <div className="flex items-center gap-4">
-                    {project.live_url && (
-                      <a 
-                        href={project.live_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm font-medium text-white hover:text-blue-400 transition-colors"
-                      >
-                        <ExternalLink size={16} />
-                        Live Demo
-                      </a>
-                    )}
-                    {project.github_url && (
-                      <a 
-                        href={project.github_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
-                      >
-                        <GithubIcon size={16} />
-                        Code
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
+              <ProjectCard key={project.id} project={project} index={index} />
             ))}
           </div>
         )}

@@ -52,7 +52,7 @@ export default function ProjectPage() {
 
       if (data) {
         console.log('Project found by slug:', data.title)
-        setProject(data)
+        setProject(data as Project)
         if (!data.is_private) setIsUnlocked(true)
         setLoading(false)
         return
@@ -69,18 +69,18 @@ export default function ProjectPage() {
 
       if (idData) {
         console.log('Project found by ID fallback:', idData.title)
-        setProject(idData)
+        setProject(idData as Project)
         if (!idData.is_private) setIsUnlocked(true)
       } else {
         console.error('Final fetch error:', idError)
         // If we found the project in the "allProjects" list but the direct fetch failed, 
         // it might be a weird encoding or RLS issue with .single()
-        const foundInList = allProjects?.find(p => p.slug === decodedSlug || p.id === decodedSlug)
+        const foundInList = (allProjects as any[])?.find((p: any) => p.slug === decodedSlug || p.id === decodedSlug)
         if (foundInList) {
           console.log('Project found in list, fetching by ID directly...')
           const { data: finalData } = await supabase.from('projects').select('*').eq('id', foundInList.id).single()
           if (finalData) {
-            setProject(finalData)
+            setProject(finalData as Project)
             if (!finalData.is_private) setIsUnlocked(true)
             setLoading(false)
             return

@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { createClient } from '@/lib/supabase'
-import { Terminal as TerminalIcon, ChevronRight, Loader2 } from 'lucide-react'
+import { Terminal as TerminalIcon, ChevronRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Fuse from 'fuse.js'
 
@@ -12,34 +11,17 @@ interface Command {
   category: string
 }
 
-export default function Terminal() {
+interface TerminalProps {
+  initialCommands: Command[]
+}
+
+export default function Terminal({ initialCommands }: TerminalProps) {
   const [input, setInput] = useState('')
   const [history, setHistory] = useState<{ type: 'input' | 'output'; content: string }[]>([
     { type: 'output', content: 'Welcome to the Secure Terminal v2.0.4' },
     { type: 'output', content: "Type 'help' to see available commands." }
   ])
-  const [commands, setCommands] = useState<Command[]>([])
-  const [loading, setLoading] = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const supabase = createClient()
-
-  useEffect(() => {
-    async function fetchCommands() {
-      try {
-        const { data, error } = await supabase.from('terminal_commands').select('*')
-        if (error) {
-          console.error('Supabase error fetching terminal_commands:', error.message, error.hint)
-          return
-        }
-        if (data) setCommands(data)
-      } catch (err: any) {
-        console.error('Error fetching terminal commands:', err.message || err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchCommands()
-  }, [supabase])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -48,12 +30,12 @@ export default function Terminal() {
   }, [history])
 
   const fuse = useMemo(() => {
-    return new Fuse(commands, {
+    return new Fuse(initialCommands, {
       keys: ['command_name'],
       threshold: 0.4,
       includeScore: true
     })
-  }, [commands])
+  }, [initialCommands])
 
   const findBestMatch = (cmd: string) => {
     if (cmd === 'help' || cmd === 'clear') return null
@@ -82,7 +64,7 @@ export default function Terminal() {
     }
 
     if (cmd === 'help') {
-      const dynamicCmds = commands.map(c => c.command_name).join(', ')
+      const dynamicCmds = initialCommands.map(c => c.command_name).join(', ')
       setHistory(prev => [
         ...prev, 
         { type: 'output', content: `Available commands: help, clear, ${dynamicCmds}` }
@@ -120,13 +102,6 @@ export default function Terminal() {
         ref={scrollRef}
         className="h-[400px] overflow-y-auto p-6 space-y-3 text-sm scrollbar-hide"
       >
-        {loading && (
-          <div className="flex items-center gap-2 text-blue-500/50">
-            <Loader2 className="animate-spin" size={14} />
-            <span>Initializing core modules...</span>
-          </div>
-        )}
-        
         <AnimatePresence mode="popLayout">
           {history.map((line, i) => (
             <motion.div 
@@ -145,7 +120,6 @@ export default function Terminal() {
       <form onSubmit={handleCommand} className="p-6 pt-0 flex items-center gap-3">
         <ChevronRight size={18} className="text-blue-500 shrink-0" />
         <input 
-          autoFocus
           value={input}
           onChange={e => setInput(e.target.value)}
           placeholder="Enter command..."

@@ -1,8 +1,32 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Wrench } from 'lucide-react'
-import * as Icons from 'lucide-react'
+import { 
+  Wrench, 
+  Terminal, 
+  Code2, 
+  Database, 
+  Globe, 
+  Layers, 
+  Layout, 
+  Cpu, 
+  ShieldCheck, 
+  Smartphone,
+  Cloud
+} from 'lucide-react'
+
+const ICON_MAP: Record<string, any> = {
+  Terminal,
+  Code2,
+  Database,
+  Globe,
+  Layers,
+  Layout,
+  Cpu,
+  ShieldCheck,
+  Smartphone,
+  Cloud
+}
 
 interface Skill {
   id: string
@@ -46,7 +70,7 @@ export default function Skills({ skills }: SkillsProps) {
               <h3 className="text-blue-500 font-bold uppercase tracking-widest text-xs mb-8">{cat}</h3>
               <div className="flex flex-wrap gap-3">
                 {skills.filter(s => (s.category || 'General') === cat).map(skill => {
-                  const IconComponent = (Icons as any)[skill.icon_name || 'Terminal'] || Icons.Terminal
+                  const IconComponent = ICON_MAP[skill.icon_name || ''] || Terminal
                   return (
                     <div 
                       key={skill.id}

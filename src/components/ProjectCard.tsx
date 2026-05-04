@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ExternalLink, Lock, EyeOff, ChevronRight } from 'lucide-react'
-import { createClient } from '@/lib/supabase'
+import { ExternalLink, Lock, ChevronRight } from 'lucide-react'
 import GithubIcon from '@/components/icons/GithubIcon'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
+import { slugify } from '@/lib/utils'
 
 interface Project {
   id: string
+  slug: string
   title: string
   description: string
   image_url: string
@@ -25,20 +26,8 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, index }: ProjectCardProps) {
-  const [isAdmin, setIsAdmin] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setIsAdmin(!!session)
-    }
-    checkUser()
-  }, [supabase])
-
-  // Hide links if project is private, even for admins on the main page cards
-  // Links should only be accessible on the inner project page after password entry
+  // Hide links if project is private
   const showLinks = !project.is_private
 
   return (
@@ -47,14 +36,22 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      onClick={() => router.push(`/projects/${project.id}`)}
-      className={`group relative bg-[#111] rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-300 cursor-pointer`}
+      className={`group relative bg-[#111] rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-300 h-full`}
     >
+      {/* Primary Link Overlay */}
+      <Link 
+        href={`/projects/${project.slug}`} 
+        className="absolute inset-0 z-10"
+        aria-label={`View details for ${project.title}`}
+      />
+
       <div className="aspect-video relative overflow-hidden">
-        <img 
+        <Image 
           src={project.image_url || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop'} 
           alt={project.title}
-          className={`object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 ${project.is_private ? 'blur-[8px] grayscale' : ''}`}
+          fill
+          className={`object-cover group-hover:scale-105 transition-transform duration-500 ${project.is_private ? 'blur-[8px] grayscale' : ''}`}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className="absolute top-4 left-4 z-20">
           <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
@@ -69,7 +66,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
         )}
       </div>
 
-      <div className="p-6">
+      <div className="p-6 relative z-20 pointer-events-none">
         <div className="flex flex-wrap gap-2 mb-4">
           {(Array.isArray(project.technologies) 
             ? project.technologies 
@@ -93,15 +90,15 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
           }
         </p>
 
-        <div className="flex items-center justify-between mt-auto">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between mt-auto pointer-events-auto">
+          <div className="flex items-center gap-4 relative z-30">
             {showLinks && project.live_url && (
               <a 
                 href={project.live_url} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
-                className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 transition-all"
+                className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 transition-all cursor-pointer"
                 title="Live Demo"
               >
                 <ExternalLink size={18} />
@@ -113,7 +110,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
                 target="_blank" 
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
-                className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+                className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
                 title="Source Code"
               >
                 <GithubIcon size={18} />
@@ -121,7 +118,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             )}
           </div>
           
-          <span className="text-xs font-bold text-blue-500 group-hover:translate-x-1 transition-transform flex items-center gap-1.5">
+          <span className="text-xs font-bold text-blue-500 group-hover:translate-x-1 transition-transform flex items-center gap-1.5 relative z-30 pointer-events-none">
             {project.is_private && <Lock size={12} />}
             View Details <ChevronRight size={14} />
           </span>

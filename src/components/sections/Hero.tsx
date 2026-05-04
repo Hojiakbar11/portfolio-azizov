@@ -30,7 +30,13 @@ export default function Hero() {
       {/* Animated background grid */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(60,60,255,0.15),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-50" />
+        {/* Grainy Noise Effect */}
+        <svg className="absolute inset-0 w-full h-full opacity-20 pointer-events-none brightness-50" xmlns="http://www.w3.org/2000/svg">
+          <filter id="noiseFilter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noiseFilter)" />
+        </svg>
       </div>
 
       <div className="container mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center gap-12">

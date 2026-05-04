@@ -9,6 +9,7 @@ import GithubIcon from '@/components/icons/GithubIcon'
 
 interface Project {
   id: string
+  slug: string
   title: string
   description: string
   long_description: string
@@ -23,7 +24,8 @@ interface Project {
 }
 
 export default function ProjectPage() {
-  const { id } = useParams()
+  const params = useParams()
+  const slug = params?.slug as string
   const router = useRouter()
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
@@ -34,27 +36,63 @@ export default function ProjectPage() {
 
   useEffect(() => {
     async function fetchProject() {
-      const { data, error } = await supabase
+      const decodedSlug = decodeURIComponent(slug)
+      console.log('Fetching project for slug:', decodedSlug)
+      
+      // DEBUG: List all projects to see what slugs are available
+      const { data: allProjects } = await supabase.from('projects').select('title, slug, id')
+      console.log('Available projects in DB:', allProjects)
+
+      // Attempt 1: Fetch by slug
+      const { data, error: fetchError } = await supabase
         .from('projects')
         .select('*')
-        .eq('id', id)
+        .eq('slug', decodedSlug)
         .single()
 
       if (data) {
+        console.log('Project found by slug:', data.title)
         setProject(data)
-        // If not private, it's automatically unlocked
-        if (!data.is_private) {
-          setIsUnlocked(true)
+        if (!data.is_private) setIsUnlocked(true)
+        setLoading(false)
+        return
+      }
+
+      console.warn('Slug fetch failed, trying ID fallback...', fetchError)
+
+      // Attempt 2: Fallback to ID
+      const { data: idData, error: idError } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', decodedSlug)
+        .single()
+
+      if (idData) {
+        console.log('Project found by ID fallback:', idData.title)
+        setProject(idData)
+        if (!idData.is_private) setIsUnlocked(true)
+      } else {
+        console.error('Final fetch error:', idError)
+        // If we found the project in the "allProjects" list but the direct fetch failed, 
+        // it might be a weird encoding or RLS issue with .single()
+        const foundInList = allProjects?.find(p => p.slug === decodedSlug || p.id === decodedSlug)
+        if (foundInList) {
+          console.log('Project found in list, fetching by ID directly...')
+          const { data: finalData } = await supabase.from('projects').select('*').eq('id', foundInList.id).single()
+          if (finalData) {
+            setProject(finalData)
+            if (!finalData.is_private) setIsUnlocked(true)
+            setLoading(false)
+            return
+          }
         }
-      } else if (error) {
-        console.error(error)
         router.push('/#projects')
       }
       setLoading(false)
     }
 
-    if (id) fetchProject()
-  }, [id, supabase, router])
+    if (slug) fetchProject()
+  }, [slug, supabase, router])
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,7 +118,6 @@ export default function ProjectPage() {
 
   if (!project) return null
 
-  // Safe technologies parsing
   const techArray = Array.isArray(project.technologies) 
     ? project.technologies 
     : (typeof project.technologies === 'string' ? project.technologies.split(',').map(t => t.trim()).filter(Boolean) : [])
@@ -200,7 +237,6 @@ export default function ProjectPage() {
               animate={{ opacity: 1 }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start"
             >
-              {/* Main Content */}
               <div className="lg:col-span-8 space-y-12">
                 <section>
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
@@ -230,7 +266,6 @@ export default function ProjectPage() {
                 </section>
               </div>
 
-              {/* Sidebar */}
               <div className="lg:col-span-4 space-y-8">
                 <div className="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 sticky top-8 shadow-xl">
                   <h3 className="text-xl font-bold mb-6">Links & Meta</h3>

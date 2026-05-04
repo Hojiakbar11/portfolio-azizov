@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
 import { X, Upload, Loader2, Image as ImageIcon } from 'lucide-react'
+import { slugify } from '@/lib/utils'
 
 interface ProjectFormProps {
   onClose: () => void
@@ -12,6 +13,7 @@ interface ProjectFormProps {
 
 export default function ProjectForm({ onClose, onSuccess, project }: ProjectFormProps) {
   const [title, setTitle] = useState(project?.title || '')
+  const [slug, setSlug] = useState(project?.slug || '')
   const [description, setDescription] = useState(project?.description || '')
   const [longDescription, setLongDescription] = useState(project?.long_description || '')
   const [imageUrl, setImageUrl] = useState(project?.image_url || '')
@@ -26,6 +28,13 @@ export default function ProjectForm({ onClose, onSuccess, project }: ProjectForm
   const [loading, setLoading] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Auto-generate slug from title if it's a new project or slug is empty
+  useEffect(() => {
+    if (title && (!project || !project.slug)) {
+      setSlug(slugify(title))
+    }
+  }, [title, project])
   
   const supabase = createClient()
 
@@ -75,6 +84,7 @@ export default function ProjectForm({ onClose, onSuccess, project }: ProjectForm
 
     const projectData = {
       title,
+      slug,
       description,
       long_description: longDescription,
       image_url: imageUrl,
@@ -136,6 +146,20 @@ export default function ProjectForm({ onClose, onSuccess, project }: ProjectForm
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:border-blue-500 outline-none"
                   placeholder="My Awesome App"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-400">URL Slug</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 text-xs font-mono">/projects/</span>
+                  <input
+                    required
+                    value={slug}
+                    onChange={e => setSlug(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-[74px] pr-4 text-white font-mono text-xs focus:border-blue-500 outline-none"
+                    placeholder="my-awesome-app"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

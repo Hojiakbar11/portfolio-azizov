@@ -1,55 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { ExternalLink, Lock } from 'lucide-react'
-import { createClient } from '@/lib/supabase'
-import GithubIcon from '@/components/icons/GithubIcon'
 import ProjectCard from '@/components/ProjectCard'
 
 interface Project {
   id: string
+  slug: string
   title: string
   description: string
   image_url: string
   github_url?: string
   live_url?: string
   is_private: boolean
-  technologies: string[]
+  technologies: string[] | string
+  category?: string
 }
 
-export default function Projects() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+interface ProjectsProps {
+  projects: Project[]
+}
 
-  useEffect(() => {
-    async function fetchProjects() {
-      if (!supabase || !supabase.from) {
-        setLoading(false)
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (data) setProjects(data)
-      setLoading(false)
-    }
-
-    fetchProjects()
-  }, [supabase])
-
-  if (loading) {
-    return (
-      <div className="py-20 flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
-      </div>
-    )
-  }
-
+export default function Projects({ projects }: ProjectsProps) {
   return (
     <section id="projects" className="py-24 bg-[#0a0a0a]">
       <div className="container mx-auto px-6">
